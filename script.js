@@ -1,37 +1,44 @@
 // Classifier Variable
 let classifier;
 // Model URL
-// let imageModelURL = 'https://teachablemachine.withgoogle.com/models/87Zpt5W4z/';
-let imageModelURL = 'https://teachablemachine.withgoogle.com/models/fN7eaHqzB/';
+// let imageModelURL = 'https://teachablemachine.withgoogle.com/models/fN7eaHqzB/';  //--> Junbae model
+
+let imageModelURL = 'https://teachablemachine.withgoogle.com/models/j-DqOHLVe/';  //--> YJOh model
+
 // Video
 let video;
 let input;
 let flippedVideo;
 // To store the classification
 let label = "";
-//----------------- for Wave of flowing text ---------
-let xspacing = 15; // Distance between each horizontal location
+
+//----------------- Saying words gesture ----------------------
+let xspacing = 27; // Distance between each horizontal location
 let w; // Width of entire wave
 let theta = 0.0; // Start angle at 0
-let amplitude = 50.0; // Height of wave
-let period = 500.0; // How many pixels before the wave repeats
+let amplitude = 40.0; // Height of wave
+let period = 600.0; // How many pixels before the wave repeats
 let dx; // Value for incrementing x
 let yvalues; // Using an array to store height values for the wave
 let sentence = "I Love Coding";
 let sentenceArray = [];
 let m = 0
-//-------------------------------------------
+//---------------------------------------------------------------
+
+
 // Load the model first
 function preload() {
-  classifier = ml5.imageClassifier(imageModelURL + 'model.json');
+  // classifier = ml5.imageClassifier(imageModelURL + 'model.json');
+  classifier = ml5.imageClassifier('tm-my-image-model/model.json');
+
 }
 
 function setup() {
-  let cnv = createCanvas(420, 360);
+  let cnv = createCanvas(800, 600);
   cnv.parent("canvas");
   // Create the video
   video = createCapture(VIDEO);
-  video.size(420, 340);
+  video.size(800, 600);
   video.hide();
 
   input = createInput();
@@ -39,11 +46,15 @@ function setup() {
   input.parent("myquestion");
 
   flippedVideo = ml5.flipImage(video);
-  //----------------- for Wave of flowing text ---------
-  w = width + 16;
-  dx = (TWO_PI / period) * xspacing;
-  yvalues = new Array(floor(w / xspacing));
-  
+
+ 
+  //----------------- for Saying Words gesture ---------
+ w = width + 1000;
+ dx = (TWO_PI / period) * xspacing;
+ yvalues = new Array(floor(w / xspacing));
+ //-------------------------------------------------------
+ 
+
   // Start classifying
   classifyVideo();
 }
@@ -54,26 +65,27 @@ function draw() {
   image(flippedVideo, 0, 0);
 
   if (label == "words") {
-    //fill(255);
-    //textSize(20);
-    //text(input.value(), width / 2 - 30, height / 2);
     sentence = input.value()
     sentenceArray = sentence.split("");
     calcWave();
     renderWave();
+
   } else if (label == "ok"){
     fill(0, 255, 0);
-    textSize(50);
-    text("OK!", width / 2 - 10, 50);
+    textSize(80);
+    textAlign(CENTER);
+    text("OK!", width / 2, 90);
   } else if (label == "no"){
     fill(255, 0, 0);
-    textSize(50);
-    text("NO...", width / 2 - 10, 50);
+    textSize(80);
+    textAlign(CENTER);
+    text("NO...", width / 2 + 20, 90);
   } else if (label == "raise"){
-    fill(0, 0, 255);
-    textSize(20);
+    fill(255, 255, 0);
+    textSize(60);
+    textAlign(CENTER);
     textStyle(BOLD);
-    text("I have something to say", 200, 50);
+    text("I have something to say", width / 2, 70);
   } 
   
   // Draw the label
@@ -98,6 +110,7 @@ function gotResult(error, results) {
     console.error(error);
     return;
   }
+
   // The results are in an array ordered by confidence.
   // console.log(results[0]);
   label = results[0].label;
@@ -105,11 +118,11 @@ function gotResult(error, results) {
   classifyVideo();
 }
 
-//----------------- for Wave of flowing text ---------
+//----------------- for Saying Words ----------------
 function calcWave() {
   // Increment theta (try different values for
   // 'angular velocity' here)
-  theta += 0.02;
+  theta += 0.10;
 
   // For every x value, calculate a y value with sine function
   let x = theta;
@@ -118,9 +131,9 @@ function calcWave() {
     x += dx;
   }
   if (m > width){
-    m = 0;
+    m = -sentenceArray.length * xspacing;
   } else {
-    m += 2;
+    m += 3;
   }
 }
 
@@ -130,9 +143,11 @@ function renderWave() {
   // A simple way to draw the wave with an ellipse at each location
   for (let x = 0; x < sentenceArray.length; x++) {
     //ellipse(x * xspacing, height / 2 + yvalues[x], 16, 16);
-    textSize(32);
+    textSize(50);
     textFont('Helvetica');
-    fill(random(255), random(100, 255), random(125, 255));
-    text(sentenceArray[x],x * xspacing+m, height / 2 + yvalues[x], 32, 32);
+    textStyle(BOLD);
+    fill(random(255), random(255), random(255));
+    text(sentenceArray[x],x * xspacing+m, height / 2 + yvalues[x]);
   }
 }
+//---------------------------------------------------------

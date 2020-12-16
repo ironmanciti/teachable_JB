@@ -30,7 +30,6 @@ let m = 0
 function preload() {
   // classifier = ml5.imageClassifier(imageModelURL + 'model.json');
   classifier = ml5.imageClassifier('tm-my-image-model/model.json');
-
 }
 
 function setup() {
